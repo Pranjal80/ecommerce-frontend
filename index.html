@@ -3,13 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-Commerce Frontend</title>
+    <title>ShopSwift - E-Commerce Frontend</title>
     <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
-    <header>
-        <h1>Welcome to Our Online Store</h1>
+    <header class="header">
+        <div class="logo">ShopSwift</div>
+        <nav class="nav-links">
+            <a href="#">Home</a>
+            <a href="#">Products</a>
+            <a href="#">About</a>
+            <a href="#">Contact</a>
+        </nav>
+        <div class="header-right">
+            <input type="text" placeholder="Search..." class="search-input" />
+            <div class="cart">
+                🛒 <span class="cart-count">0</span>
+            </div>
+        </div>
     </header>
+
+    <!-- Loading and Error States -->
+    <div id="loading" class="loading">Loading products...</div>
+    <div id="error" class="error" style="display: none;">Failed to load products. Please try again later.</div>
+
+    <main class="product-grid"></main>
+
     <script src="scripts/app.js"></script>
 </body>
 </html>
