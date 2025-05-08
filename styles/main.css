@@ -1,4 +1,3 @@
-/* Header layout */
 .header {
     background-color: #1e1f36;
     color: white;
@@ -92,7 +91,6 @@
     padding: 2px 6px;
 }
 
-/* Hero Section */
 .hero {
     background: linear-gradient(135deg, #1e1f36 0%, #4a4e8e 100%);
     color: white;
@@ -147,6 +145,151 @@
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+.product-detail {
+    display: flex;
+    gap: 2rem;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.product-detail-image-container {
+    flex: 1;
+    max-width: 500px;
+    position: relative;
+}
+
+.product-detail-image {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.zoom-lens {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid #ccc;
+    display: none;
+    pointer-events: none;
+}
+
+.zoom-result {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border: 1px solid #ccc;
+    background-repeat: no-repeat;
+    display: none;
+    z-index: 10;
+    top: 0;
+    left: 520px;
+}
+
+.product-detail-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.product-detail-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+.product-detail-price {
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.product-detail-description {
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.variations {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.variations label {
+    font-weight: bold;
+}
+
+.variations select {
+    padding: 0.5rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    width: 200px;
+}
+
+.quantity-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 1rem 0;
+}
+
+.quantity-selector button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.quantity-selector button:hover {
+    background-color: #45a049;
+}
+
+.quantity-selector input {
+    width: 50px;
+    text-align: center;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.product-detail-add-to-cart {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    align-self: flex-start;
+}
+
+.product-detail-add-to-cart:hover {
+    background-color: #45a049;
+}
+
+.cart-success {
+    color: #4CAF50;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+    display: none;
+}
+
+.product-detail-error {
+    text-align: center;
+    font-size: 1.2rem;
+    color: red;
+    padding: 2rem;
 }
 
 .product-grid {
@@ -208,6 +351,28 @@
         padding: 0.6rem 1.2rem;
         font-size: 0.9rem;
     }
+
+    .product-detail {
+        flex-direction: column;
+        padding: 1rem;
+    }
+
+    .product-detail-image-container {
+        max-width: 100%;
+    }
+
+    .product-detail-add-to-cart {
+        width: 100%;
+        text-align: center;
+    }
+
+    .zoom-result {
+        display: none !important;
+    }
+
+    .variations select {
+        width: 100%;
+    }
 }
 
 @media (max-width: 600px) {
@@ -236,6 +401,18 @@
         padding: 0.5rem 1rem;
         font-size: 0.8rem;
     }
+
+    .product-detail-title {
+        font-size: 1.5rem;
+    }
+
+    .product-detail-price {
+        font-size: 1.3rem;
+    }
+
+    .product-detail-description {
+        font-size: 0.9rem;
+    }
 }
 
 .product-card {
@@ -257,6 +434,7 @@
     height: 200px;
     object-fit: cover;
     border-radius: 5px;
+    cursor: pointer;
 }
 
 .product-card .title {
@@ -265,6 +443,7 @@
     height: 3em;
     overflow: hidden;
     text-overflow: ellipsis;
+    cursor: pointer;
 }
 
 .product-card .price {
@@ -289,7 +468,6 @@
     background-color: #45a049;
 }
 
-/* Loading and Error States */
 .loading {
     text-align: center;
     font-size: 1.2rem;

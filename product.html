@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopSwift - Product Details</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <header class="header">
+        <div class="logo">ShopSwift</div>
+        <button class="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <nav class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="index.html">Products</a>
+            <a href="#">About</a>
+            <a href="#">Contact</a>
+        </nav>
+        <div class="header-right">
+            <input type="text" placeholder="Search..." class="search-input" />
+            <div class="cart">
+                🛒 <span class="cart-count">0</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="product-detail" id="product-detail"></main>
+
+    <div id="loading" class="loading">Loading product...</div>
+    <div id="error" class="error" style="display: none;">Failed to load product. Please try again later.</div>
+
+    <script src="scripts/product.js"></script>
+</body>
+</html>
