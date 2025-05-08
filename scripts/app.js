@@ -112,7 +112,35 @@ function initializeCart() {
     });
 }
 
-// Debounce search input (optional, for future search functionality)
+// Mobile menu toggle
+function initializeMobileMenu() {
+    const hamburger = document.querySelector('.hamburger');
+    const navLinks = document.querySelector('.nav-links');
+
+    hamburger.addEventListener('click', () => {
+        hamburger.classList.toggle('active');
+        navLinks.classList.toggle('active');
+    });
+
+    // Close menu when clicking a nav link
+    navLinks.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            hamburger.classList.remove('active');
+            navLinks.classList.remove('active');
+        });
+    });
+}
+
+// Initialize hero CTA button
+function initializeHeroCTA() {
+    const ctaButton = document.querySelector('.hero-cta');
+    ctaButton.addEventListener('click', () => {
+        // Scroll to product grid
+        document.querySelector('.product-grid').scrollIntoView({ behavior: 'smooth' });
+    });
+}
+
+// Debounce search input (for future search functionality)
 function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -129,6 +157,8 @@ function debounce(func, wait) {
 document.addEventListener('DOMContentLoaded', () => {
     fetchProducts();
     updateCartCount();
+    initializeMobileMenu();
+    initializeHeroCTA();
 
     // Re-attach event listeners after products are loaded
     const observer = new MutationObserver(() => {
