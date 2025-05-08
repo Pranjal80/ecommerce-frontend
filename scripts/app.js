@@ -1,10 +1,6 @@
-// scripts/app.js
-
-// Cache management
 const CACHE_KEY = 'shopswift_products';
-const CACHE_EXPIRY = 60 * 60 * 1000; // 1 hour in milliseconds
+const CACHE_EXPIRY = 60 * 60 * 1000;
 
-// Check if cached data is available and valid
 function getCachedProducts() {
     const cached = localStorage.getItem(CACHE_KEY);
     if (!cached) return null;
@@ -17,7 +13,6 @@ function getCachedProducts() {
     return data;
 }
 
-// Save data to cache
 function setCachedProducts(data) {
     const cacheData = {
         data,
@@ -26,18 +21,26 @@ function setCachedProducts(data) {
     localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
 }
 
-// Display products
+function loadCart() {
+    const cart = localStorage.getItem('shopswift_cart');
+    return cart ? JSON.parse(cart) : { count: 0, items: [] };
+}
+
+function saveCart(cart) {
+    localStorage.setItem('shopswift_cart', JSON.stringify(cart));
+}
+
 function displayProducts(products) {
     const productGrid = document.querySelector('.product-grid');
-    productGrid.innerHTML = ''; // Clear existing content
+    productGrid.innerHTML = '';
 
     products.forEach(product => {
         const card = document.createElement('div');
         card.classList.add('product-card');
 
         card.innerHTML = `
-            <img src="${product.image}" alt="${product.title}" loading="lazy" />
-            <h3 class="title">${product.title}</h3>
+            <a href="product.html?id=${product.id}"><img src="${product.image}" alt="${product.title}" loading="lazy" /></a>
+            <a href="product.html?id=${product.id}"><h3 class="title">${product.title}</h3></a>
             <div class="price">$${product.price.toFixed(2)}</div>
             <button class="add-to-cart" data-id="${product.id}">Add to Cart</button>
         `;
@@ -46,20 +49,17 @@ function displayProducts(products) {
     });
 }
 
-// Cart functionality
-let cartCount = 0;
+let cart = loadCart();
 function updateCartCount() {
     const cartCountElement = document.querySelector('.cart-count');
-    cartCountElement.textContent = cartCount;
+    cartCountElement.textContent = cart.count;
 }
 
-// Fetch and display products
 function fetchProducts() {
     const loading = document.getElementById('loading');
     const error = document.getElementById('error');
     const productGrid = document.querySelector('.product-grid');
 
-    // Check cache first
     const cachedProducts = getCachedProducts();
     if (cachedProducts) {
         loading.style.display = 'none';
@@ -69,7 +69,6 @@ function fetchProducts() {
         return;
     }
 
-    // Show loading state
     loading.style.display = 'block';
     error.style.display = 'none';
     productGrid.style.display = 'none';
@@ -80,27 +79,24 @@ function fetchProducts() {
             return res.json();
         })
         .then(data => {
-            // Cache the response
             setCachedProducts(data);
-
-            // Hide loading, show products
             loading.style.display = 'none';
             productGrid.style.display = 'grid';
             displayProducts(data);
         })
         .catch(() => {
-            // Show error state
             loading.style.display = 'none';
             error.style.display = 'block';
             productGrid.style.display = 'none';
         });
 }
 
-// Initialize cart event listeners
 function initializeCart() {
     document.querySelectorAll('.add-to-cart').forEach(btn => {
         btn.addEventListener('click', () => {
-            cartCount++;
+            cart.count++;
+            cart.items.push(btn.dataset.id);
+            saveCart(cart);
             updateCartCount();
             btn.textContent = 'Added!';
             btn.disabled = true;
@@ -112,7 +108,6 @@ function initializeCart() {
     });
 }
 
-// Mobile menu toggle
 function initializeMobileMenu() {
     const hamburger = document.querySelector('.hamburger');
     const navLinks = document.querySelector('.nav-links');
@@ -122,7 +117,6 @@ function initializeMobileMenu() {
         navLinks.classList.toggle('active');
     });
 
-    // Close menu when clicking a nav link
     navLinks.querySelectorAll('a').forEach(link => {
         link.addEventListener('click', () => {
             hamburger.classList.remove('active');
@@ -131,16 +125,13 @@ function initializeMobileMenu() {
     });
 }
 
-// Initialize hero CTA button
 function initializeHeroCTA() {
     const ctaButton = document.querySelector('.hero-cta');
     ctaButton.addEventListener('click', () => {
-        // Scroll to product grid
         document.querySelector('.product-grid').scrollIntoView({ behavior: 'smooth' });
     });
 }
 
-// Debounce search input (for future search functionality)
 function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -153,14 +144,12 @@ function debounce(func, wait) {
     };
 }
 
-// Initialize
 document.addEventListener('DOMContentLoaded', () => {
     fetchProducts();
     updateCartCount();
     initializeMobileMenu();
     initializeHeroCTA();
 
-    // Re-attach event listeners after products are loaded
     const observer = new MutationObserver(() => {
         initializeCart();
     });
