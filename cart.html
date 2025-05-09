@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShopSwift - Product Details</title>
+    <title>ShopSwift - Cart</title>
     <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
@@ -29,11 +29,20 @@
         </div>
     </header>
 
-    <main class="product-detail" id="product-detail"></main>
+    <main class="cart-container">
+        <h1>Your Cart</h1>
+        <button class="continue-shopping"><a href="index.html">Continue Shopping</a></button>
+        <div class="cart-items" id="cart-items"></div>
+        <div class="cart-total">
+            <span>Total:</span>
+            <span id="cart-total-price">$0.00</span>
+        </div>
+        <button class="checkout-button" id="checkout-button" disabled>Proceed to Checkout</button>
+    </main>
 
-    <div id="loading" class="loading">Loading product...</div>
-    <div id="error" class="error" style="display: none;">Failed to load product. Please try again later.</div>
+    <div id="loading" class="loading">Loading cart...</div>
+    <div id="error" class="error" style="display: none;">Failed to load cart. Please try again later.</div>
 
-    <script src="scripts/product.js"></script>
+    <script src="scripts/cart.js"></script>
 </body>
 </html>

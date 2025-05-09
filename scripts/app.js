@@ -94,8 +94,15 @@ function fetchProducts() {
 function initializeCart() {
     document.querySelectorAll('.add-to-cart').forEach(btn => {
         btn.addEventListener('click', () => {
-            cart.count++;
-            cart.items.push(btn.dataset.id);
+            const productId = btn.dataset.id;
+            const existingItem = cart.items.find(item => item.id === productId);
+            if (existingItem) {
+                existingItem.quantity = (existingItem.quantity || 1) + 1;
+                cart.count++;
+            } else {
+                cart.items.push({ id: productId, quantity: 1 });
+                cart.count++;
+            }
             saveCart(cart);
             updateCartCount();
             btn.textContent = 'Added!';
