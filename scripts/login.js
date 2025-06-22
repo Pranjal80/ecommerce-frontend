@@ -1,78 +1,46 @@
-function loadCart() {
-    const cart = localStorage.getItem('shopswift_cart');
-    return cart ? JSON.parse(cart) : { count: 0, items: [] };
-}
+import {
+    auth,
+    signInWithEmailAndPassword,
+    onAuthStateChanged
+} from './firebase.js';
 
 function updateCartCount() {
-    const cart = loadCart();
-    const cartCountElement = document.querySelector('.cart-count');
-    cartCountElement.textContent = cart.count;
-}
-
-function validateEmail(email) {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
-}
-
-function validatePassword(password) {
-    const re = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-    return re.test(password);
+    const cart = JSON.parse(localStorage.getItem('shopswift_cart')) || { count: 0 };
+    document.querySelector('.cart-count').textContent = cart.count;
 }
 
 function initializeLoginForm() {
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
-    const emailError = document.getElementById('email-error');
-    const passwordError = document.getElementById('password-error');
     const loginButton = document.getElementById('login-button');
-    const togglePassword = document.querySelector('.toggle-password');
+    const errorMessage = document.getElementById('login-error');
 
-    function validateForm() {
-        const isEmailValid = validateEmail(emailInput.value);
-        const isPasswordValid = validatePassword(passwordInput.value);
+    loginButton.addEventListener('click', async () => {
+        const email = emailInput.value.trim();
+        const password = passwordInput.value.trim();
 
-        emailError.textContent = isEmailValid ? '' : 'Please enter a valid email';
-        passwordError.textContent = isPasswordValid ? '' : 'Password must be at least 8 characters with uppercase, lowercase, and a number';
+        if (!email || !password) {
+            errorMessage.textContent = 'Please enter email and password';
+            return;
+        }
 
-        loginButton.disabled = !(isEmailValid && isPasswordValid);
-    }
-
-    emailInput.addEventListener('input', validateForm);
-    passwordInput.addEventListener('input', validateForm);
-
-    togglePassword.addEventListener('click', () => {
-        const type = passwordInput.type === 'password' ? 'text' : 'password';
-        passwordInput.type = type;
-        togglePassword.textContent = type === 'password' ? '👁️' : '🙈';
-    });
-
-    loginButton.addEventListener('click', () => {
-        if (!loginButton.disabled) {
-            alert('Login successful! (Mock action)');
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            alert('Login successful!');
             window.location.href = 'index.html';
+        } catch (err) {
+            errorMessage.textContent = err.message;
         }
     });
 }
 
-function initializeMobileMenu() {
-    const hamburger = document.querySelector('.hamburger');
-    const navLinks = document.querySelector('.nav-links');
-
-    hamburger.addEventListener('click', () => {
-        hamburger.classList.toggle('active');
-        navLinks.classList.toggle('active');
-    });
-
-    navLinks.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', () => {
-            hamburger.classList.remove('active');
-            navLinks.classList.remove('active');
-        });
-    });
-}
+onAuthStateChanged(auth, user => {
+    if (user) {
+        console.log('User is logged in:', user.email);
+    }
+});
 
 document.addEventListener('DOMContentLoaded', () => {
     updateCartCount();
-    initializeMobileMenu();
     initializeLoginForm();
 });
