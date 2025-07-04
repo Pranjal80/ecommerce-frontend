@@ -1,7 +1,8 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const cartCountElement = document.querySelector('.cart-count');
-  const cart = JSON.parse(localStorage.getItem('shopswift_cart')) || { count: 0, items: [] };
-  if (cartCountElement) {
-    cartCountElement.textContent = cart.count;
-  }
+document.addEventListener("DOMContentLoaded", () => {
+    const t = document.querySelector(".cart-count"),
+        e = JSON.parse(localStorage.getItem("shopswift_cart")) || {
+            count: 0,
+            items: []
+        };
+    t && (t.textContent = e.count)
 });

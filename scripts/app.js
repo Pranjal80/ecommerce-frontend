@@ -2,54 +2,33 @@ import {
     auth,
     onAuthStateChanged,
     signOut
-} from './firebase.js';
-
-import { auth, signOut } from './firebase.js';
+} from "./firebase.js";
 
 function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem('shopswift_cart')) || { count: 0 };
-    document.querySelector('.cart-count').textContent = cart.count;
+    const t = JSON.parse(localStorage.getItem("shopswift_cart")) || {
+        count: 0
+    };
+    document.querySelector(".cart-count").textContent = t.count
 }
 
 function initializeLogout() {
-    const logoutBtn = document.getElementById('logout-button');
-    if (!logoutBtn) return;
-
-    logoutBtn.addEventListener('click', async () => {
-        await signOut(auth);
-        alert('You have been logged out.');
-        window.location.href = 'login.html';
-    });
+    const t = document.getElementById("logout-button");
+    t && t.addEventListener("click", async () => {
+        await signOut(auth), alert("You have been logged out."), window.location.href = "login.html"
+    })
 }
 
 function showAuthUI() {
-    const loginBtn = document.getElementById('login-link');
-    const logoutBtn = document.getElementById('logout-button');
-
-    onAuthStateChanged(auth, user => {
-        if (user) {
-            if (loginBtn) loginBtn.style.display = 'none';
-            if (logoutBtn) logoutBtn.style.display = 'inline-block';
-        } else {
-            if (loginBtn) loginBtn.style.display = 'inline-block';
-            if (logoutBtn) logoutBtn.style.display = 'none';
-        }
-    });
+    const t = document.getElementById("login-link"),
+        n = document.getElementById("logout-button");
+    onAuthStateChanged(auth, e => {
+        e ? (t && (t.style.display = "none"), n && (n.style.display = "inline-block")) : (t && (t.style.display = "inline-block"), n && (n.style.display = "none"))
+    })
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-    updateCartCount();
-    showAuthUI();
-    initializeLogout();
-});
-
-document.addEventListener('click', e => {
-    if (e.target.id === 'logout') {
-        signOut(auth)
-            .then(() => {
-                alert('Logged out successfully!');
-                window.location.href = 'login.html';
-            })
-            .catch(err => alert(err.message));
-    }
+document.addEventListener("DOMContentLoaded", () => {
+    updateCartCount(), showAuthUI(), initializeLogout()
+}), document.addEventListener("click", t => {
+    "logout" === t.target.id && signOut(auth).then(() => {
+        alert("Logged out successfully!"), window.location.href = "login.html"
+    }).catch(t => alert(t.message))
 });
