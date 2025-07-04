@@ -1,276 +1,166 @@
-const CACHE_KEY = 'shopswift_products';
-const CACHE_EXPIRY = 60 * 60 * 1000;
-
-function getCachedProducts() {
-    const cached = localStorage.getItem(CACHE_KEY);
-    if (!cached) return null;
-    
-    const { data, timestamp } = JSON.parse(cached);
-    if (Date.now() - timestamp > CACHE_EXPIRY) {
-        localStorage.removeItem(CACHE_KEY);
-        return null;
-    }
-    return data;
-}
+const productDetail = document.getElementById('product-detail');
+const loading = document.getElementById('loading');
+const error = document.getElementById('error');
+const cartCountElement = document.querySelector('.cart-count');
 
 function loadCart() {
-    const cart = localStorage.getItem('shopswift_cart');
-    return cart ? JSON.parse(cart) : { count: 0, items: [] };
+  const cart = localStorage.getItem('shopswift_cart');
+  return cart ? JSON.parse(cart) : { count: 0, items: [] };
 }
+let cart = loadCart();
 
 function saveCart(cart) {
-    localStorage.setItem('shopswift_cart', JSON.stringify(cart));
+  localStorage.setItem('shopswift_cart', JSON.stringify(cart));
 }
 
-const mockVariations = {
-    sizes: ['S', 'M', 'L'],
-    colors: ['Red', 'Blue', 'Black'],
-    availability: {
-        'S': ['Red', 'Blue', 'Black'],
-        'M': ['Red', 'Blue', 'Black'],
-        'L': ['Blue', 'Black']
-    },
-    priceModifiers: {
-        'S': 0,
-        'M': 2,
-        'L': 5,
-        'Red': 1,
-        'Blue': 0,
-        'Black': 0
-    }
-};
-
-function displayProduct(product) {
-    const productDetail = document.getElementById('product-detail');
-    productDetail.innerHTML = `
-        <div class="product-detail-image-container">
-            <img src="${product.image}" alt="${product.title}" class="product-detail-image" loading="lazy" />
-            <div class="zoom-lens"></div>
-            <div class="zoom-result"></div>
-        </div>
-        <div class="product-detail-info">
-            <h1 class="product-detail-title">${product.title}</h1>
-            <div class="product-detail-price" data-base-price="${product.price.toFixed(2)}">$${product.price.toFixed(2)}</div>
-            <p class="product-detail-description">${product.description}</p>
-            <div class="variations">
-                <label for="size">Size:</label>
-                <select id="size" name="size">
-                    ${mockVariations.sizes.map(size => `<option value="${size}">${size}</option>`).join('')}
-                </select>
-                <label for="color">Color:</label>
-                <select id="color" name="color">
-                    ${mockVariations.colors.map(color => `<option value="${color}">${color}</option>`).join('')}
-                </select>
-            </div>
-            <div class="quantity-selector">
-                <button id="decrease-quantity">-</button>
-                <input type="text" id="quantity" value="1" readonly />
-                <button id="increase-quantity">+</button>
-            </div>
-            <button class="product-detail-add-to-cart" data-id="${product.id}">Add to Cart</button>
-            <div class="cart-success">Added to cart!</div>
-        </div>
-    `;
-    initializeInteractiveFeatures(product);
-}
-
-let cart = loadCart();
 function updateCartCount() {
-    const cartCountElement = document.querySelector('.cart-count');
-    cartCountElement.textContent = cart.count;
+  cartCountElement.textContent = cart.count;
 }
 
 function fetchProduct() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const productId = urlParams.get('id');
-    const loading = document.getElementById('loading');
-    const error = document.getElementById('error');
-    const productDetail = document.getElementById('product-detail');
-
-    if (!productId) {
-        loading.style.display = 'none';
-        error.style.display = 'block';
-        productDetail.style.display = 'none';
-        return;
-    }
-
-    const cachedProducts = getCachedProducts();
-    if (cachedProducts) {
-        const product = cachedProducts.find(p => p.id == productId);
-        if (product) {
-            loading.style.display = 'none';
-            error.style.display = 'none';
-            productDetail.style.display = 'flex';
-            displayProduct(product);
-            return;
-        }
-    }
-
-    loading.style.display = 'block';
-    error.style.display = 'none';
-    productDetail.style.display = 'none';
-
-    fetch(`https://fakestoreapi.com/products/${productId}`)
-        .then(res => {
-            if (!res.ok) throw new Error('Network response was not ok');
-            return res.json();
-        })
-        .then(product => {
-            loading.style.display = 'none';
-            productDetail.style.display = 'flex';
-            displayProduct(product);
-        })
-        .catch(() => {
-            loading.style.display = 'none';
-            error.style.display = 'block';
-            productDetail.style.display = 'none';
-        });
+  const urlParams = new URLSearchParams(window.location.search);
+  const productId = urlParams.get('id');
+  if (!productId) {
+    loading.style.display = 'none';
+    error.style.display = 'block';
+    return;
+  }
+  fetch(`https://fakestoreapi.com/products/${productId}`)
+    .then(res => {
+      if (!res.ok) throw new Error('Network error');
+      return res.json();
+    })
+    .then(product => {
+      loading.style.display = 'none';
+      displayProduct(product);
+    })
+    .catch(() => {
+      loading.style.display = 'none';
+      error.style.display = 'block';
+    });
 }
 
-function initializeInteractiveFeatures(product) {
-    const imageContainer = document.querySelector('.product-detail-image-container');
-    const image = document.querySelector('.product-detail-image');
-    const lens = document.querySelector('.zoom-lens');
-    const result = document.querySelector('.zoom-result');
-    const sizeSelect = document.getElementById('size');
-    const colorSelect = document.getElementById('color');
-    const quantityInput = document.getElementById('quantity');
-    const decreaseBtn = document.getElementById('decrease-quantity');
-    const increaseBtn = document.getElementById('increase-quantity');
-    const priceElement = document.querySelector('.product-detail-price');
-    const addToCartBtn = document.querySelector('.product-detail-add-to-cart');
-    const cartSuccess = document.querySelector('.cart-success');
+function displayProduct(product) {
+  productDetail.innerHTML = `
+    <div class="relative">
+      <img src="${product.image}" alt="${product.title}" id="main-image" class="w-full h-auto object-contain rounded" />
+      <div id="zoom-lens" class="hidden absolute border border-gray-400 bg-white opacity-50"></div>
+    </div>
+    <div class="flex flex-col">
+      <h1 class="text-2xl font-bold mb-2">${product.title}</h1>
+      <p class="text-gray-700 mb-4">${product.description}</p>
+      <div class="mb-4 font-semibold text-xl">$<span id="price">${product.price.toFixed(2)}</span></div>
 
-    let basePrice = parseFloat(priceElement.dataset.basePrice);
-    let quantity = parseInt(quantityInput.value);
-    let isZoomActive = false;
+      <div class="mb-4 flex gap-2">
+        <label class="font-medium">Size:</label>
+        <select id="size" class="border rounded p-1">
+          <option value="S">S</option>
+          <option value="M">M</option>
+          <option value="L">L</option>
+        </select>
+      </div>
+      <div class="mb-4 flex gap-2">
+        <label class="font-medium">Color:</label>
+        <select id="color" class="border rounded p-1">
+          <option value="Red">Red</option>
+          <option value="Blue">Blue</option>
+          <option value="Black">Black</option>
+        </select>
+      </div>
+      <div class="mb-4 flex items-center gap-2">
+        <button id="decrease" class="bg-gray-300 px-2 py-1 rounded">−</button>
+        <input id="quantity" type="text" value="1" readonly class="w-12 text-center border"/>
+        <button id="increase" class="bg-gray-300 px-2 py-1 rounded">+</button>
+      </div>
+      <button id="add-to-cart" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Add to Cart</button>
+      <div id="success" class="text-green-600 mt-2 hidden">Added to cart!</div>
+    </div>
+  `;
 
-    function updatePrice() {
-        const size = sizeSelect.value;
-        const color = colorSelect.value;
-        let sizeModifier = mockVariations.priceModifiers[size] || 0;
-        let colorModifier = mockVariations.priceModifiers[color] || 0;
-        let totalPrice = (basePrice + sizeModifier + colorModifier) * quantity;
-        priceElement.textContent = `$${totalPrice.toFixed(2)}`;
+  const image = document.getElementById('main-image');
+  const lens = document.getElementById('zoom-lens');
+  const priceEl = document.getElementById('price');
+  const size = document.getElementById('size');
+  const color = document.getElementById('color');
+  const quantity = document.getElementById('quantity');
+  const decrease = document.getElementById('decrease');
+  const increase = document.getElementById('increase');
+  const addToCart = document.getElementById('add-to-cart');
+  const success = document.getElementById('success');
+
+  let qty = 1;
+  let basePrice = product.price;
+
+  function updatePrice() {
+    let sizeMod = size.value === 'M' ? 2 : size.value === 'L' ? 5 : 0;
+    let colorMod = color.value === 'Red' ? 1 : 0;
+    priceEl.textContent = ((basePrice + sizeMod + colorMod) * qty).toFixed(2);
+  }
+
+  size.addEventListener('change', updatePrice);
+  color.addEventListener('change', updatePrice);
+  decrease.addEventListener('click', () => {
+    if (qty > 1) {
+      qty--;
+      quantity.value = qty;
+      updatePrice();
     }
-
-    function updateColorOptions() {
-        const size = sizeSelect.value;
-        const availableColors = mockVariations.availability[size];
-        Array.from(colorSelect.options).forEach(option => {
-            option.disabled = !availableColors.includes(option.value);
-        });
-        if (!availableColors.includes(colorSelect.value)) {
-            colorSelect.value = availableColors[0];
-        }
-        updatePrice();
+  });
+  increase.addEventListener('click', () => {
+    if (qty < 10) {
+      qty++;
+      quantity.value = qty;
+      updatePrice();
     }
+  });
+  addToCart.addEventListener('click', () => {
+  const selectedItem = {
+    id: product.id,
+    title: product.title,
+    price: basePrice,
+    size: size.value,
+    color: color.value,
+    quantity: qty,
+    image: product.image
+  };
 
-    imageContainer.addEventListener('mouseenter', () => {
-        lens.style.display = 'block';
-        result.style.display = 'block';
-        result.style.backgroundImage = `url(${image.src})`;
-        const ratioX = result.offsetWidth / lens.offsetWidth;
-        const ratioY = result.offsetHeight / lens.offsetHeight;
-        result.style.backgroundSize = `${image.width * ratioX}px ${image.height * ratioY}px`;
-    });
+  const existingIndex = cart.items.findIndex(item =>
+    item.id === selectedItem.id &&
+    item.size === selectedItem.size &&
+    item.color === selectedItem.color
+  );
 
-    imageContainer.addEventListener('mousemove', e => {
-        const rect = image.getBoundingClientRect();
-        let x = e.clientX - rect.left;
-        let y = e.clientY - rect.top;
-        x = Math.max(lens.offsetWidth / 2, Math.min(x, rect.width - lens.offsetWidth / 2));
-        y = Math.max(lens.offsetHeight / 2, Math.min(y, rect.height - lens.offsetHeight / 2));
-        lens.style.left = `${x - lens.offsetWidth / 2}px`;
-        lens.style.top = `${y - lens.offsetHeight / 2}px`;
-        const ratioX = result.offsetWidth / lens.offsetWidth;
-        const ratioY = result.offsetHeight / lens.offsetHeight;
-        result.style.backgroundPosition = `-${(x - lens.offsetWidth / 2) * ratioX}px -${(y - lens.offsetHeight / 2) * ratioY}px`;
-    });
+  if (existingIndex !== -1) {
+    cart.items[existingIndex].quantity += qty;
+  } else {
+    cart.items.push(selectedItem);
+  }
 
-    imageContainer.addEventListener('mouseleave', () => {
-        lens.style.display = 'none';
-        result.style.display = 'none';
-    });
+  cart.count += qty;
+  saveCart(cart);
+  updateCartCount();
 
-    image.addEventListener('touchstart', () => {
-        if (!isZoomActive) {
-            lens.style.display = 'block';
-            result.style.display = 'block';
-            result.style.backgroundImage = `url(${image.src})`;
-            const ratioX = result.offsetWidth / lens.offsetWidth;
-            const ratioY = result.offsetHeight / lens.offsetHeight;
-            result.style.backgroundSize = `${image.width * ratioX}px ${image.height * ratioY}px`;
-            isZoomActive = true;
-        } else {
-            lens.style.display = 'none';
-            result.style.display = 'none';
-            isZoomActive = false;
-        }
-    });
+  success.classList.remove('hidden');
+  setTimeout(() => success.classList.add('hidden'), 1000);
+});
 
-    sizeSelect.addEventListener('change', () => {
-        updateColorOptions();
-    });
 
-    colorSelect.addEventListener('change', updatePrice);
+  image.addEventListener('mousemove', e => {
+    lens.classList.remove('hidden');
+    const rect = image.getBoundingClientRect();
+    const x = e.clientX - rect.left - lens.offsetWidth / 2;
+    const y = e.clientY - rect.top - lens.offsetHeight / 2;
+    lens.style.left = `${Math.max(0, Math.min(x, rect.width - lens.offsetWidth))}px`;
+    lens.style.top = `${Math.max(0, Math.min(y, rect.height - lens.offsetHeight))}px`;
+    lens.style.width = '100px';
+    lens.style.height = '100px';
+  });
+  image.addEventListener('mouseleave', () => lens.classList.add('hidden'));
 
-    decreaseBtn.addEventListener('click', () => {
-        if (quantity > 1) {
-            quantity--;
-            quantityInput.value = quantity;
-            updatePrice();
-        }
-    });
-
-    increaseBtn.addEventListener('click', () => {
-        if (quantity < 10) {
-            quantity++;
-            quantityInput.value = quantity;
-            updatePrice();
-        }
-    });
-
-    addToCartBtn.addEventListener('click', () => {
-        cart.count += quantity;
-        cart.items.push({
-            id: addToCartBtn.dataset.id,
-            size: sizeSelect.value,
-            color: colorSelect.value,
-            quantity: quantity
-        });
-        saveCart(cart);
-        updateCartCount();
-        addToCartBtn.disabled = true;
-        cartSuccess.style.display = 'block';
-        setTimeout(() => {
-            addToCartBtn.disabled = false;
-            cartSuccess.style.display = 'none';
-        }, 1000);
-    });
-
-    updateColorOptions();
-}
-
-function initializeMobileMenu() {
-    const hamburger = document.querySelector('.hamburger');
-    const navLinks = document.querySelector('.nav-links');
-
-    hamburger.addEventListener('click', () => {
-        hamburger.classList.toggle('active');
-        navLinks.classList.toggle('active');
-    });
-
-    navLinks.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', () => {
-            hamburger.classList.remove('active');
-            navLinks.classList.remove('active');
-        });
-    });
+  updatePrice();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    fetchProduct();
-    updateCartCount();
-    initializeMobileMenu();
+  fetchProduct();
+  updateCartCount();
 });
